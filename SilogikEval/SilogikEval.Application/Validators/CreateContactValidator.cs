@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using SilogikEval.Application.Constants;
 using SilogikEval.Application.Dtos;
 
 namespace SilogikEval.Application.Validators
@@ -9,35 +10,48 @@ namespace SilogikEval.Application.Validators
         public CreateContactValidator()
         {
             RuleFor(x => x.Email)
-            .NotEmpty()
-            .EmailAddress();
+                .NotEmpty()
+                .WithErrorCode(ErrorKeys.EmailRequired)
+                .WithMessage("El correo electrónico es obligatorio.")
+                .EmailAddress()
+                .WithErrorCode(ErrorKeys.EmailInvalidFormat)
+                .WithMessage("El formato del correo electrónico no es válido.");
 
             RuleFor(x => x.FirstName)
                 .NotEmpty()
+                .WithErrorCode(ErrorKeys.FirstNameRequired)
+                .WithMessage("El nombre es obligatorio.")
                 .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
+                .WithErrorCode(ErrorKeys.FirstNameAlphabetic)
                 .WithMessage("El nombre solo permite caracteres alfabéticos.");
 
             RuleFor(x => x.LastName)
                 .NotEmpty()
+                .WithErrorCode(ErrorKeys.LastNameRequired)
+                .WithMessage("El apellido paterno es obligatorio.")
                 .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
+                .WithErrorCode(ErrorKeys.LastNameAlphabetic)
                 .WithMessage("El apellido paterno solo permite caracteres alfabéticos.");
 
             RuleFor(x => x.SecondName)
                 .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$")
                 .When(x => !string.IsNullOrEmpty(x.SecondName))
+                .WithErrorCode(ErrorKeys.SecondNameAlphabetic)
                 .WithMessage("El segundo nombre solo permite caracteres alfabéticos.");
 
             RuleFor(x => x.SecondLastName)
-                .NotEmpty()
-                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$")
+                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
                 .When(x => !string.IsNullOrEmpty(x.SecondLastName))
+                .WithErrorCode(ErrorKeys.SecondLastNameAlphabetic)
                 .WithMessage("El apellido materno solo permite caracteres alfabéticos.");
 
             RuleFor(x => x.Comments)
-                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$")
-                .When(x => !string.IsNullOrEmpty(x.Comments))
+                .NotEmpty()
+                .WithErrorCode(ErrorKeys.CommentsRequired)
+                .WithMessage("Los comentarios son obligatorios.")
+                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$")
+                .WithErrorCode(ErrorKeys.CommentsAlphabetic)
                 .WithMessage("Los comentarios solo permiten caracteres alfabéticos.");
         }
-
     }
 }

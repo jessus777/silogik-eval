@@ -1,20 +1,13 @@
-﻿using SilogikEval.Application.Entities;
+﻿using SilogikEval.Application.Dtos;
 
 namespace SilogikEval.Application.Interfaces
 {
     public interface IContactServiceAsync
     {
-        Task<Guid> CreateAsync(Contact contact);
+        Task<Guid> CreateAsync(CreateContactRequestDto request);
 
-        Task<bool> UpdateAsync(Contact contact);
+        Task<ContactResponseDto?> GetByIdAsync(Guid id);
 
-        Task<bool> DeleteAsync(Guid id);
-
-        Task<Contact?> GetByIdAsync(Guid id);
-
-        Task<IEnumerable<Contact>> GetAllAsync();
-
-        Task<bool> EmailExistsAsync(string email);
-
+        Task<IEnumerable<ContactResponseDto>> GetAllAsync();
     }
 }
