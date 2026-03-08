@@ -52,3 +52,23 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Visual Studio
+.vs/
+
+# Visual Studio user files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio database/cache
+*.db
+*.db-shm
+*.db-wal
+
+# VS Code
+.vscode/
+
+# Rider
+.idea/

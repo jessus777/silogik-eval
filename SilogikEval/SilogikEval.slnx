@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path="../.gitignore" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Application/">
+    <Project Path="SilogikEval.Application/SilogikEval.Application.csproj" />
+  </Folder>
+  <Folder Name="/src/Infrastructure/">
+    <Project Path="SilogikEval.Persistence/SilogikEval.Persistence.csproj" />
+  </Folder>
+  <Folder Name="/src/UI/">
+    <Project Path="SilogikEval.Api/SilogikEval.Api.csproj" />
+  </Folder>
+</Solution>

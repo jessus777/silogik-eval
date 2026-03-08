@@ -1,0 +1,6 @@
+@SilogikEval.Api_HostAddress = http://localhost:5079
+
+GET {{SilogikEval.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
