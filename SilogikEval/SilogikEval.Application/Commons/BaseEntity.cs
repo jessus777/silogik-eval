@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SilogikEval.Application.Commons
+﻿namespace SilogikEval.Application.Commons
 {
     public class BaseEntity
     {
         public DateTime CreatedDate { get; set; }
+
         public DateTime LastModifiedDate { get; set; }
     }
 }

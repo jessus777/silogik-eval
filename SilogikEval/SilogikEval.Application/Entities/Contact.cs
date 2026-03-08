@@ -15,7 +15,7 @@ namespace SilogikEval.Application.Entities
         public string LastName { get; set; } = default!;
         public string? SecondLastName { get; set; }
 
-        public string? Comments { get; set; }
+        public string Comments { get; set; } = default!;
 
         public string? FilePath { get; set; }
     }
