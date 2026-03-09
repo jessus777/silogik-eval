@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using SilogikEval.Api.Models;
 using SilogikEval.Application.Dtos;
 using SilogikEval.Application.Interfaces;
@@ -30,7 +31,7 @@ namespace SilogikEval.Api.Endpoints
         }
 
         private static async Task<IResult> CreateAsync(
-            [AsParameters] CreateContactRequest request,
+            [FromForm] CreateContactRequest request,
             IContactServiceAsync contactService)
         {
             var dto = new CreateContactRequestDto

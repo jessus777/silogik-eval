@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using SilogikEval.Api.Extensions;
 using SilogikEval.Application;
 using SilogikEval.Persistence;
@@ -16,6 +17,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
