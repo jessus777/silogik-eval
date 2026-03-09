@@ -208,7 +208,9 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'error.file.extension_not_allowed',  N'Extensión de archivo no permitida.'),
 ('es', 'error.file.type_not_allowed',       N'Tipo de archivo no permitido.'),
 ('es', 'error.file.size_exceeded',          N'El archivo excede el tamaño permitido.'),
-('es', 'error.entity.not_found',            N'El recurso solicitado no fue encontrado.');
+('es', 'error.entity.not_found',            N'El recurso solicitado no fue encontrado.'),
+('es', 'error.invalid_request',             N'La solicitud no es válida.'),
+('es', 'error.unexpected',                  N'Ocurrió un error inesperado.');
 GO
 
 -- =============================================
@@ -250,5 +252,7 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'error.file.extension_not_allowed',  N'File extension is not allowed.'),
 ('en', 'error.file.type_not_allowed',       N'File type is not allowed.'),
 ('en', 'error.file.size_exceeded',          N'File exceeds the maximum allowed size.'),
-('en', 'error.entity.not_found',            N'The requested resource was not found.');
+('en', 'error.entity.not_found',            N'The requested resource was not found.'),
+('en', 'error.invalid_request',             N'The request is invalid.'),
+('en', 'error.unexpected',                  N'An unexpected error occurred.');
 GO

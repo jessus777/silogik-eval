@@ -64,9 +64,29 @@ namespace SilogikEval.Api.Middleware
 
                 await WriteResponseAsync(context, HttpStatusCode.NotFound, response);
             }
+            catch (BadHttpRequestException)
+            {
+                var lang = GetLanguage(context);
+                var translations = await translationService.GetTranslationsAsync(lang);
+
+                var message = translations.TryGetValue("error.invalid_request", out var translated)
+                    ? translated
+                    : "La solicitud no es válida.";
+
+                var response = ApiResponse<object>.Fail(message);
+
+                await WriteResponseAsync(context, HttpStatusCode.BadRequest, response);
+            }
             catch (Exception)
             {
-                var response = ApiResponse<object>.Fail("An unexpected error occurred.");
+                var lang = GetLanguage(context);
+                var translations = await translationService.GetTranslationsAsync(lang);
+
+                var message = translations.TryGetValue("error.unexpected", out var translated)
+                    ? translated
+                    : "Ocurrió un error inesperado.";
+
+                var response = ApiResponse<object>.Fail(message);
 
                 await WriteResponseAsync(context, HttpStatusCode.InternalServerError, response);
             }

@@ -24,5 +24,7 @@ namespace SilogikEval.Application.Constants
 
         // Generic
         public const string EntityNotFound = "error.entity.not_found";
+        public const string InvalidRequest = "error.invalid_request";
+        public const string UnexpectedError = "error.unexpected";
     }
 }
