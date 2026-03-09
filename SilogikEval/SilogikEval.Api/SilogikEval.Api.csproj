@@ -11,11 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Validators\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\SilogikEval.Application\SilogikEval.Application.csproj" />
     <ProjectReference Include="..\SilogikEval.Persistence\SilogikEval.Persistence.csproj" />
   </ItemGroup>
