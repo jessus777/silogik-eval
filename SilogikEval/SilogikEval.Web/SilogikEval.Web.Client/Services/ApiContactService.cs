@@ -102,5 +102,52 @@ namespace SilogikEval.Web.Client.Services
 
             return new ApiResponseModel<Guid> { Success = false, Message = "Error inesperado." };
         }
+
+        public async Task<ApiResponseModel<object>> UpdateAsync(UpdateContactModel model)
+        {
+            using var content = new MultipartFormDataContent();
+
+            content.Add(new StringContent(model.FirstName), "FirstName");
+            content.Add(new StringContent(model.LastName), "LastName");
+            content.Add(new StringContent(model.Comments), "Comments");
+
+            if (!string.IsNullOrEmpty(model.SecondName))
+                content.Add(new StringContent(model.SecondName), "SecondName");
+
+            if (!string.IsNullOrEmpty(model.SecondLastName))
+                content.Add(new StringContent(model.SecondLastName), "SecondLastName");
+
+            if (model.Attachment is not null)
+            {
+                var stream = model.Attachment.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+                var fileContent = new StreamContent(stream);
+                fileContent.Headers.ContentType = new MediaTypeHeaderValue(model.Attachment.ContentType);
+                content.Add(fileContent, "Attachment", model.Attachment.Name);
+            }
+
+            using var request = new HttpRequestMessage(HttpMethod.Put, $"api/contacts/{model.Id}");
+            request.Content = content;
+            request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(_languageState.CurrentLanguage));
+
+            HttpResponseMessage httpResponse;
+
+            try
+            {
+                httpResponse = await _httpClient.SendAsync(request);
+            }
+            catch
+            {
+                return new ApiResponseModel<object> { Success = false, Message = "Error de conexión." };
+            }
+
+            var json = await httpResponse.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<ApiResponseModel<object>>(json, JsonOptions);
+
+            if (result is not null)
+                return result;
+
+            return new ApiResponseModel<object> { Success = false, Message = "Error inesperado." };
+        }
     }
 }

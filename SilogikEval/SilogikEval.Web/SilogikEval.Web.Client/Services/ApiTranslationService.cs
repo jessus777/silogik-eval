@@ -20,13 +20,20 @@ namespace SilogikEval.Web.Client.Services
             if (_translationsCache.TryGetValue(languageCode, out var cached))
                 return cached;
 
-            var response = await _httpClient
-                .GetFromJsonAsync<ApiResponseModel<Dictionary<string, string>>>($"api/translations/{languageCode}");
+            try
+            {
+                var response = await _httpClient
+                    .GetFromJsonAsync<ApiResponseModel<Dictionary<string, string>>>($"api/translations/{languageCode}");
 
-            var translations = response?.Data ?? new Dictionary<string, string>();
-            _translationsCache[languageCode] = translations;
+                var translations = response?.Data ?? new Dictionary<string, string>();
+                _translationsCache[languageCode] = translations;
 
-            return translations;
+                return translations;
+            }
+            catch
+            {
+                return new Dictionary<string, string>();
+            }
         }
 
         public async Task<IEnumerable<LanguageModel>> GetLanguagesAsync()
@@ -34,12 +41,19 @@ namespace SilogikEval.Web.Client.Services
             if (_languagesCache is not null)
                 return _languagesCache;
 
-            var response = await _httpClient
-                .GetFromJsonAsync<ApiResponseModel<IEnumerable<LanguageModel>>>("api/translations/languages");
+            try
+            {
+                var response = await _httpClient
+                    .GetFromJsonAsync<ApiResponseModel<IEnumerable<LanguageModel>>>("api/translations/languages");
 
-            _languagesCache = response?.Data ?? [];
+                _languagesCache = response?.Data ?? [];
 
-            return _languagesCache;
+                return _languagesCache;
+            }
+            catch
+            {
+                return [];
+            }
         }
     }
 }

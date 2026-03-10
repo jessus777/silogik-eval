@@ -1,6 +1,6 @@
 @using SilogikEval.Web.Client.Models
 
-<div class="card">
+<div class="card shadow">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">@T("label.contacts", "Contactos")</h5>
     </div>
@@ -30,7 +30,7 @@
                             <th>@T("label.secondlastname", "Apellido materno")</th>
                             <th>@T("label.comments", "Comentarios")</th>
                             <th>@T("label.attachment", "Adjunto")</th>
-                            <th>@T("label.actions", "Acciones")</th>
+                            <th class="text-center">@T("label.actions", "Acciones")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,11 +53,30 @@
                                         <span class="text-muted">—</span>
                                     }
                                 </td>
-                                <td>
-                                    <button class="btn btn-sm btn-outline-primary"
-                                            @onclick="() => OnViewContact.InvokeAsync(contact.Id)">
-                                        👁 @T("button.view", "Ver")
-                                    </button>
+                                <td class="text-center">
+                                    <div class="position-relative d-inline-block">
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                @onclick="() => ToggleMenu(contact.Id)">
+                                            <span class="bi bi-list"></span>
+                                        </button>
+                                        @if (_openMenuId == contact.Id)
+                                        {
+                                            <div class="dropdown-menu show shadow-sm" style="position:absolute; right:0; top:100%; z-index:1050; min-width:160px;">
+                                                <button class="dropdown-item d-flex align-items-center gap-2" type="button"
+                                                        @onclick="() => OnView(contact.Id)">
+                                                    <span class="bi bi-eye"></span> @T("button.view", "Ver")
+                                                </button>
+                                                <button class="dropdown-item d-flex align-items-center gap-2" type="button"
+                                                        @onclick="() => OnEdit(contact.Id)">
+                                                    <span class="bi bi-pencil"></span> @T("button.edit", "Editar")
+                                                </button>
+                                                <div class="dropdown-divider"></div>
+                                                <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" disabled>
+                                                    <span class="bi bi-trash"></span> @T("button.delete", "Eliminar")
+                                                </button>
+                                            </div>
+                                        }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -72,6 +91,26 @@
     [Parameter] public IEnumerable<ContactModel>? Contacts { get; set; }
     [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
     [Parameter] public EventCallback<Guid> OnViewContact { get; set; }
+    [Parameter] public EventCallback<Guid> OnEditContact { get; set; }
+
+    private Guid? _openMenuId;
+
+    private void ToggleMenu(Guid id)
+    {
+        _openMenuId = _openMenuId == id ? null : id;
+    }
+
+    private async Task OnView(Guid id)
+    {
+        _openMenuId = null;
+        await OnViewContact.InvokeAsync(id);
+    }
+
+    private async Task OnEdit(Guid id)
+    {
+        _openMenuId = null;
+        await OnEditContact.InvokeAsync(id);
+    }
 
     private string T(string key, string fallback)
     {

@@ -212,6 +212,7 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'label.add_contact',        N'Agregar Contacto'),
 ('es', 'label.actions',            N'Acciones'),
 ('es', 'label.contact_detail',     N'Detalle del Contacto'),
+('es', 'label.edit_contact',       N'Editar Contacto'),
 ('es', 'label.created_date',       N'Fecha de creación'),
 
 -- Buttons
@@ -220,11 +221,15 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'button.confirm',           N'Confirmar'),
 ('es', 'button.view',              N'Ver'),
 ('es', 'button.close',             N'Cerrar'),
+('es', 'button.edit',              N'Editar'),
+('es', 'button.save',              N'Guardar'),
+('es', 'button.delete',            N'Eliminar'),
 
 -- Messages
 ('es', 'message.success',          N'El formulario se envió correctamente.'),
 ('es', 'message.error',            N'Ocurrió un error al procesar la solicitud.'),
 ('es', 'message.confirm_send',     N'¿Está seguro de enviar el formulario?'),
+('es', 'message.update_success',   N'El contacto se actualizó correctamente.'),
 
 -- Validation
 ('es', 'validation.email.required',                 N'El correo electrónico es obligatorio.'),
@@ -266,6 +271,7 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'label.add_contact',        N'Add Contact'),
 ('en', 'label.actions',            N'Actions'),
 ('en', 'label.contact_detail',     N'Contact Detail'),
+('en', 'label.edit_contact',       N'Edit Contact'),
 ('en', 'label.created_date',       N'Created date'),
 
 -- Buttons
@@ -274,11 +280,15 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'button.confirm',           N'Confirm'),
 ('en', 'button.view',              N'View'),
 ('en', 'button.close',             N'Close'),
+('en', 'button.edit',              N'Edit'),
+('en', 'button.save',              N'Save'),
+('en', 'button.delete',            N'Delete'),
 
 -- Messages
 ('en', 'message.success',          N'The form was submitted successfully.'),
 ('en', 'message.error',            N'An error occurred while processing the request.'),
 ('en', 'message.confirm_send',     N'Are you sure you want to submit the form?'),
+('en', 'message.update_success',   N'The contact was updated successfully.'),
 
 -- Validation
 ('en', 'validation.email.required',                 N'Email is required.'),

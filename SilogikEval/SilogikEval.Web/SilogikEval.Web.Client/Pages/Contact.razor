@@ -18,12 +18,20 @@
 </div>
 
 <ContactList Contacts="_contacts" Translations="_translations"
-             OnViewContact="ViewContactAsync" />
+             OnViewContact="ViewContactAsync"
+             OnEditContact="EditContactAsync" />
 
 <ContactDetailModal IsVisible="_showDetail"
                     Contact="_selectedContact"
                     Translations="_translations"
                     OnClose="CloseDetail" />
+
+<ContactEditModal IsVisible="_showEdit"
+                  Contact="_editContact"
+                  Translations="_translations"
+                  OnClose="CloseEdit"
+                  OnContactUpdated="OnContactUpdatedAsync"
+                  OnSubmit="ContactService.UpdateAsync" />
 
 <ContactFormModal IsVisible="_showModal"
                   Translations="_translations"
@@ -36,7 +44,9 @@
     private IDictionary<string, string> _translations = new Dictionary<string, string>();
     private bool _showModal;
     private bool _showDetail;
+    private bool _showEdit;
     private ContactModel? _selectedContact;
+    private ContactModel? _editContact;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +99,28 @@
         _showDetail = false;
         _selectedContact = null;
         StateHasChanged();
+    }
+
+    private async Task EditContactAsync(Guid id)
+    {
+        _editContact = null;
+        _showEdit = true;
+        StateHasChanged();
+
+        _editContact = await ContactService.GetByIdAsync(id);
+        StateHasChanged();
+    }
+
+    private void CloseEdit()
+    {
+        _showEdit = false;
+        _editContact = null;
+        StateHasChanged();
+    }
+
+    private async Task OnContactUpdatedAsync()
+    {
+        await LoadContactsAsync();
     }
 
     private string T(string key, string fallback)

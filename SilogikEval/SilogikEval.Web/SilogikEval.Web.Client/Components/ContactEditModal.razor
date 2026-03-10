@@ -1,0 +1,307 @@
+@using SilogikEval.Web.Client.Models
+@using System.Text.RegularExpressions
+@using Microsoft.AspNetCore.Components.Forms
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@T("label.edit_contact", "Editar Contacto")</h5>
+                    <button type="button" class="btn-close" @onclick="Close" disabled="@_isSubmitting"></button>
+                </div>
+                <div class="modal-body">
+                    @if (_errorMessages.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <strong>@T("message.error", "Ocurrió un error")</strong>
+                            <ul class="mb-0 mt-1">
+                                @foreach (var error in _errorMessages)
+                                {
+                                    <li>@error</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(_successMessage))
+                    {
+                        <div class="alert alert-success">
+                            <strong>✓</strong> @_successMessage
+                        </div>
+                    }
+
+                    @if (_showConfirmation)
+                    {
+                        <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                            <span>@T("message.confirm_send", "¿Está seguro de enviar el formulario?")</span>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-2" @onclick="CancelConfirmation">
+                                    @T("button.cancel", "Cancelar")
+                                </button>
+                                <button class="btn btn-sm btn-success" @onclick="ConfirmSubmitAsync">
+                                    @T("button.confirm", "Confirmar")
+                                </button>
+                            </div>
+                        </div>
+                    }
+
+                    @if (_model is not null)
+                    {
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.email", "Email")</label>
+                                <input type="email" class="form-control" value="@_model.Email" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@T("label.firstname", "Nombre") *</label>
+                                <input type="text" class="form-control @ValidationCss(nameof(_model.FirstName))"
+                                       @bind="_model.FirstName" />
+                                @if (HasFieldError(nameof(_model.FirstName)))
+                                {
+                                    <div class="invalid-feedback d-block">@GetFieldError(nameof(_model.FirstName))</div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@T("label.secondname", "Segundo nombre")</label>
+                                <input type="text" class="form-control @ValidationCss(nameof(_model.SecondName))"
+                                       @bind="_model.SecondName" />
+                                @if (HasFieldError(nameof(_model.SecondName)))
+                                {
+                                    <div class="invalid-feedback d-block">@GetFieldError(nameof(_model.SecondName))</div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@T("label.lastname", "Apellido paterno") *</label>
+                                <input type="text" class="form-control @ValidationCss(nameof(_model.LastName))"
+                                       @bind="_model.LastName" />
+                                @if (HasFieldError(nameof(_model.LastName)))
+                                {
+                                    <div class="invalid-feedback d-block">@GetFieldError(nameof(_model.LastName))</div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@T("label.secondlastname", "Apellido materno")</label>
+                                <input type="text" class="form-control @ValidationCss(nameof(_model.SecondLastName))"
+                                       @bind="_model.SecondLastName" />
+                                @if (HasFieldError(nameof(_model.SecondLastName)))
+                                {
+                                    <div class="invalid-feedback d-block">@GetFieldError(nameof(_model.SecondLastName))</div>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">@T("label.attachment", "Adjunto")</label>
+                                <InputFile class="form-control"
+                                           OnChange="OnFileSelected" accept=".jpg,.jpeg,.png,.pdf" />
+                                @if (HasFieldError("Attachment"))
+                                {
+                                    <div class="invalid-feedback d-block">@GetFieldError("Attachment")</div>
+                                }
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">@T("label.comments", "Comentarios") *</label>
+                                <textarea class="form-control @ValidationCss(nameof(_model.Comments))"
+                                          rows="3" @bind="_model.Comments"></textarea>
+                                @if (HasFieldError(nameof(_model.Comments)))
+                                {
+                                    <div class="invalid-feedback d-block">@GetFieldError(nameof(_model.Comments))</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close"
+                            disabled="@(_isSubmitting || _showConfirmation)">
+                        @T("button.cancel", "Cancelar")
+                    </button>
+                    <button type="button" class="btn btn-primary" @onclick="RequestSubmit"
+                            disabled="@(_isSubmitting || _showConfirmation)">
+                        @if (_isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        @T("button.save", "Guardar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public ContactModel? Contact { get; set; }
+    [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnContactUpdated { get; set; }
+    [Parameter] public Func<UpdateContactModel, Task<ApiResponseModel<object>>>? OnSubmit { get; set; }
+
+    private UpdateContactModel? _model;
+    private List<string> _errorMessages = [];
+    private Dictionary<string, string> _fieldErrors = new();
+    private string? _successMessage;
+    private bool _isSubmitting;
+    private bool _showConfirmation;
+    private bool _hasAttemptedSubmit;
+
+    private static readonly Regex AlphabeticRegex = new(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$", RegexOptions.Compiled);
+    private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".pdf"];
+
+    protected override void OnParametersSet()
+    {
+        if (IsVisible && Contact is not null && (_model is null || _model.Id != Contact.Id))
+        {
+            _model = new UpdateContactModel
+            {
+                Id = Contact.Id,
+                Email = Contact.Email,
+                FirstName = Contact.FirstName,
+                SecondName = Contact.SecondName,
+                LastName = Contact.LastName,
+                SecondLastName = Contact.SecondLastName,
+                Comments = Contact.Comments
+            };
+
+            _errorMessages.Clear();
+            _fieldErrors.Clear();
+            _successMessage = null;
+            _showConfirmation = false;
+            _hasAttemptedSubmit = false;
+        }
+    }
+
+    private void OnFileSelected(InputFileChangeEventArgs e)
+    {
+        if (_model is not null)
+            _model.Attachment = e.File;
+
+        if (_hasAttemptedSubmit)
+            ValidateField("Attachment");
+    }
+
+    private bool ValidateForm()
+    {
+        _fieldErrors.Clear();
+        _hasAttemptedSubmit = true;
+
+        if (_model is null) return false;
+
+        if (string.IsNullOrWhiteSpace(_model.FirstName))
+            _fieldErrors["FirstName"] = T("validation.firstname.required", "El nombre es obligatorio.");
+        else if (!AlphabeticRegex.IsMatch(_model.FirstName))
+            _fieldErrors["FirstName"] = T("validation.firstname.alphabetic_only", "El nombre solo permite caracteres alfabéticos.");
+
+        if (string.IsNullOrWhiteSpace(_model.LastName))
+            _fieldErrors["LastName"] = T("validation.lastname.required", "El apellido paterno es obligatorio.");
+        else if (!AlphabeticRegex.IsMatch(_model.LastName))
+            _fieldErrors["LastName"] = T("validation.lastname.alphabetic_only", "El apellido paterno solo permite caracteres alfabéticos.");
+
+        if (!string.IsNullOrWhiteSpace(_model.SecondName) && !AlphabeticRegex.IsMatch(_model.SecondName))
+            _fieldErrors["SecondName"] = T("validation.secondname.alphabetic_only", "El segundo nombre solo permite caracteres alfabéticos.");
+
+        if (!string.IsNullOrWhiteSpace(_model.SecondLastName) && !AlphabeticRegex.IsMatch(_model.SecondLastName))
+            _fieldErrors["SecondLastName"] = T("validation.secondlastname.alphabetic_only", "El apellido materno solo permite caracteres alfabéticos.");
+
+        if (string.IsNullOrWhiteSpace(_model.Comments))
+            _fieldErrors["Comments"] = T("validation.comments.required", "Los comentarios son obligatorios.");
+        else if (!AlphabeticRegex.IsMatch(_model.Comments))
+            _fieldErrors["Comments"] = T("validation.comments.alphabetic_only", "Los comentarios solo permiten caracteres alfabéticos.");
+
+        ValidateField("Attachment");
+
+        return _fieldErrors.Count == 0;
+    }
+
+    private void ValidateField(string fieldName)
+    {
+        _fieldErrors.Remove(fieldName);
+
+        if (fieldName == "Attachment" && _model?.Attachment is not null)
+        {
+            var ext = Path.GetExtension(_model.Attachment.Name).ToLower();
+            if (!AllowedExtensions.Contains(ext))
+                _fieldErrors["Attachment"] = T("error.file.extension_not_allowed", "Extensión de archivo no permitida.");
+            else if (_model.Attachment.Size > 5 * 1024 * 1024)
+                _fieldErrors["Attachment"] = T("error.file.size_exceeded", "El archivo excede el tamaño permitido.");
+        }
+    }
+
+    private void RequestSubmit()
+    {
+        _errorMessages.Clear();
+        _successMessage = null;
+
+        if (!ValidateForm())
+            return;
+
+        _showConfirmation = true;
+    }
+
+    private void CancelConfirmation() => _showConfirmation = false;
+
+    private async Task ConfirmSubmitAsync()
+    {
+        _showConfirmation = false;
+        _isSubmitting = true;
+        _errorMessages.Clear();
+        StateHasChanged();
+
+        try
+        {
+            if (OnSubmit is not null && _model is not null)
+            {
+                var result = await OnSubmit(_model);
+
+                if (result.Success)
+                {
+                    _successMessage = T("message.update_success", "El contacto se actualizó correctamente.");
+                    _hasAttemptedSubmit = false;
+                    _fieldErrors.Clear();
+                    await OnContactUpdated.InvokeAsync();
+                }
+                else
+                {
+                    if (result.Errors?.Any() == true)
+                        _errorMessages.AddRange(result.Errors);
+                    else
+                        _errorMessages.Add(result.Message);
+                }
+            }
+        }
+        catch (Exception)
+        {
+            _errorMessages.Add(T("error.unexpected", "Ocurrió un error inesperado."));
+        }
+        finally
+        {
+            _isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task Close()
+    {
+        _model = null;
+        _errorMessages.Clear();
+        _fieldErrors.Clear();
+        _successMessage = null;
+        _showConfirmation = false;
+        _hasAttemptedSubmit = false;
+        await OnClose.InvokeAsync();
+    }
+
+    private bool HasFieldError(string field) => _hasAttemptedSubmit && _fieldErrors.ContainsKey(field);
+    private string GetFieldError(string field) => _fieldErrors.TryGetValue(field, out var msg) ? msg : "";
+    private string ValidationCss(string field)
+    {
+        if (!_hasAttemptedSubmit) return "";
+        return _fieldErrors.ContainsKey(field) ? "is-invalid" : "is-valid";
+    }
+
+    private string T(string key, string fallback)
+    {
+        return Translations.TryGetValue(key, out var value) ? value : fallback;
+    }
+}

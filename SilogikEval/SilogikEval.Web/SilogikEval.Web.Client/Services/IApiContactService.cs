@@ -9,5 +9,7 @@ namespace SilogikEval.Web.Client.Services
         Task<ContactModel?> GetByIdAsync(Guid id);
 
         Task<ApiResponseModel<Guid>> CreateAsync(CreateContactModel model);
+
+        Task<ApiResponseModel<object>> UpdateAsync(UpdateContactModel model);
     }
 }
