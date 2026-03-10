@@ -6,6 +6,8 @@ namespace SilogikEval.Application.Interfaces
     {
         Task<Guid> CreateAsync(Contact contact);
 
+        Task UpdateAsync(Contact contact);
+
         Task<Contact?> GetByIdAsync(Guid id);
 
         Task<IEnumerable<Contact>> GetAllAsync();

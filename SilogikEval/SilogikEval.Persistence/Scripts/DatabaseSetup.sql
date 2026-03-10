@@ -130,6 +130,31 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE usp_Contact_Update
+    @Id                 UNIQUEIDENTIFIER,
+    @FirstName          NVARCHAR(100),
+    @SecondName         NVARCHAR(100)       = NULL,
+    @LastName           NVARCHAR(100),
+    @SecondLastName     NVARCHAR(100)       = NULL,
+    @Comments           NVARCHAR(MAX),
+    @FilePath           NVARCHAR(500)       = NULL,
+    @LastModifiedDate   DATETIME2
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Contacts
+    SET    FirstName        = @FirstName,
+           SecondName       = @SecondName,
+           LastName         = @LastName,
+           SecondLastName   = @SecondLastName,
+           Comments         = @Comments,
+           FilePath         = COALESCE(@FilePath, FilePath),
+           LastModifiedDate = @LastModifiedDate
+    WHERE  Id = @Id;
+END
+GO
+
 -- =============================================
 -- 3. STORED PROCEDURES - Translations
 -- =============================================

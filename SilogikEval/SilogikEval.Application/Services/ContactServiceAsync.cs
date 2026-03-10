@@ -11,25 +11,28 @@ namespace SilogikEval.Application.Services
         : IContactServiceAsync
     {
         private readonly IContactRepositoryAsync _contactRepository;
-        private readonly IValidator<CreateContactRequestDto> _validator;
+        private readonly IValidator<CreateContactRequestDto> _createValidator;
+        private readonly IValidator<UpdateContactRequestDto> _updateValidator;
         private readonly IFileValidator _fileValidator;
         private readonly IFileStorageService _fileStorageService;
 
         public ContactServiceAsync(
             IContactRepositoryAsync contactRepository,
-            IValidator<CreateContactRequestDto> validator,
+            IValidator<CreateContactRequestDto> createValidator,
+            IValidator<UpdateContactRequestDto> updateValidator,
             IFileValidator fileValidator,
             IFileStorageService fileStorageService)
         {
             _contactRepository = contactRepository;
-            _validator = validator;
+            _createValidator = createValidator;
+            _updateValidator = updateValidator;
             _fileValidator = fileValidator;
             _fileStorageService = fileStorageService;
         }
 
         public async Task<Guid> CreateAsync(CreateContactRequestDto request)
         {
-            var validationResult = await _validator.ValidateAsync(request);
+            var validationResult = await _createValidator.ValidateAsync(request);
 
             if (!validationResult.IsValid)
             {
@@ -71,6 +74,47 @@ namespace SilogikEval.Application.Services
             };
 
             return await _contactRepository.CreateAsync(contact);
+        }
+
+        public async Task UpdateAsync(UpdateContactRequestDto request)
+        {
+            var validationResult = await _updateValidator.ValidateAsync(request);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => new ValidationError
+                {
+                    PropertyName = e.PropertyName,
+                    ErrorCode = e.ErrorCode,
+                    ErrorMessage = e.ErrorMessage
+                });
+
+                throw new AppValidationException(errors);
+            }
+
+            var existing = await _contactRepository.GetByIdAsync(request.Id)
+                ?? throw new NotFoundException(nameof(Contact), request.Id);
+
+            existing.FirstName = request.FirstName;
+            existing.SecondName = request.SecondName;
+            existing.LastName = request.LastName;
+            existing.SecondLastName = request.SecondLastName;
+            existing.Comments = request.Comments;
+            existing.LastModifiedDate = DateTime.UtcNow;
+
+            if (request.FileStream is not null
+                && request.FileName is not null
+                && request.ContentType is not null)
+            {
+                _fileValidator.Validate(request.FileName, request.ContentType, request.FileSize ?? 0);
+
+                if (!string.IsNullOrEmpty(existing.FilePath))
+                    await _fileStorageService.DeleteAsync(existing.FilePath);
+
+                existing.FilePath = await _fileStorageService.SaveAsync(request.FileStream, request.FileName);
+            }
+
+            await _contactRepository.UpdateAsync(existing);
         }
 
         public async Task<ContactResponseDto?> GetByIdAsync(Guid id)

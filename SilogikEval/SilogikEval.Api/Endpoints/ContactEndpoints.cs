@@ -27,6 +27,13 @@ namespace SilogikEval.Api.Endpoints
                 .Produces<ApiResponse<ContactResponseDto>>()
                 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
 
+            group.MapPut("/{id:guid}", UpdateAsync)
+                .DisableAntiforgery()
+                .Accepts<UpdateContactRequest>("multipart/form-data")
+                .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+                .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
+                .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
+
             return group;
         }
 
@@ -77,6 +84,34 @@ namespace SilogikEval.Api.Endpoints
                 return Results.NotFound(ApiResponse<object>.Fail("Contacto no encontrado."));
 
             return Results.Ok(ApiResponse<ContactResponseDto>.Ok(contact));
+        }
+
+        private static async Task<IResult> UpdateAsync(
+            Guid id,
+            [FromForm] UpdateContactRequest request,
+            IContactServiceAsync contactService)
+        {
+            var dto = new UpdateContactRequestDto
+            {
+                Id = id,
+                FirstName = request.FirstName,
+                SecondName = request.SecondName,
+                LastName = request.LastName,
+                SecondLastName = request.SecondLastName,
+                Comments = request.Comments
+            };
+
+            if (request.Attachment is not null)
+            {
+                dto.FileName = request.Attachment.FileName;
+                dto.ContentType = request.Attachment.ContentType;
+                dto.FileSize = request.Attachment.Length;
+                dto.FileStream = request.Attachment.OpenReadStream();
+            }
+
+            await contactService.UpdateAsync(dto);
+
+            return Results.Ok(ApiResponse<object>.Ok(null!, "Contacto actualizado exitosamente."));
         }
     }
 }

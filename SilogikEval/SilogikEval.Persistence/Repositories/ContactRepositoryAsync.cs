@@ -40,6 +40,26 @@ namespace SilogikEval.Persistence.Repositories
             return id;
         }
 
+        public async Task UpdateAsync(Contact contact)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                "usp_Contact_Update",
+                new
+                {
+                    contact.Id,
+                    contact.FirstName,
+                    contact.SecondName,
+                    contact.LastName,
+                    contact.SecondLastName,
+                    contact.Comments,
+                    contact.FilePath,
+                    contact.LastModifiedDate
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<Contact?> GetByIdAsync(Guid id)
         {
             using var connection = _connectionFactory.CreateConnection();
