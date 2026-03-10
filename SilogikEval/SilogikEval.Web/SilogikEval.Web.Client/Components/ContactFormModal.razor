@@ -1,6 +1,7 @@
 @using SilogikEval.Web.Client.Models
 @using System.Text.RegularExpressions
 @using Microsoft.AspNetCore.Components.Forms
+@inject SilogikEval.Web.Client.Services.ISweetAlertService Swal
 
 @if (IsVisible)
 {
@@ -12,41 +13,6 @@
                     <button type="button" class="btn-close" @onclick="Close" disabled="@_isSubmitting"></button>
                 </div>
                 <div class="modal-body">
-                    @if (_errorMessages.Any())
-                    {
-                        <div class="alert alert-danger">
-                            <strong>@T("message.error", "Ocurrió un error")</strong>
-                            <ul class="mb-0 mt-1">
-                                @foreach (var error in _errorMessages)
-                                {
-                                    <li>@error</li>
-                                }
-                            </ul>
-                        </div>
-                    }
-
-                    @if (!string.IsNullOrEmpty(_successMessage))
-                    {
-                        <div class="alert alert-success">
-                            <strong>✓</strong> @_successMessage
-                        </div>
-                    }
-
-                    @if (_showConfirmation)
-                    {
-                        <div class="alert alert-warning d-flex justify-content-between align-items-center">
-                            <span>@T("message.confirm_send", "¿Está seguro de enviar el formulario?")</span>
-                            <div>
-                                <button class="btn btn-sm btn-outline-secondary me-2" @onclick="CancelConfirmation">
-                                    @T("button.cancel", "Cancelar")
-                                </button>
-                                <button class="btn btn-sm btn-success" @onclick="ConfirmSubmitAsync">
-                                    @T("button.confirm", "Confirmar")
-                                </button>
-                            </div>
-                        </div>
-                    }
-
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">@T("label.email", "Email") *</label>
@@ -115,11 +81,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @onclick="Close"
-                            disabled="@(_isSubmitting || _showConfirmation)">
+                            disabled="@_isSubmitting">
                         @T("button.cancel", "Cancelar")
                     </button>
                     <button type="button" class="btn btn-primary" @onclick="RequestSubmit"
-                            disabled="@(_isSubmitting || _showConfirmation)">
+                            disabled="@_isSubmitting">
                         @if (_isSubmitting)
                         {
                             <span class="spinner-border spinner-border-sm me-1"></span>
@@ -140,11 +106,8 @@
     [Parameter] public Func<CreateContactModel, Task<ApiResponseModel<Guid>>>? OnSubmit { get; set; }
 
     private CreateContactModel _model = new();
-    private List<string> _errorMessages = [];
     private Dictionary<string, string> _fieldErrors = new();
-    private string? _successMessage;
     private bool _isSubmitting;
-    private bool _showConfirmation;
     private bool _hasAttemptedSubmit;
 
     private static readonly Regex AlphabeticRegex = new(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$", RegexOptions.Compiled);
@@ -209,25 +172,24 @@
         }
     }
 
-    private void RequestSubmit()
+    private async Task RequestSubmit()
     {
-        _errorMessages.Clear();
-        _successMessage = null;
-
         if (!ValidateForm())
             return;
 
-        _showConfirmation = true;
-    }
+        var confirmed = await Swal.ConfirmAsync(
+            T("message.confirm_send", "¿Está seguro de enviar el formulario?"),
+            "",
+            T("button.confirm", "Confirmar"),
+            T("button.cancel", "Cancelar"));
 
-    private void CancelConfirmation() => _showConfirmation = false;
+        if (!confirmed)
+            return;
 
-    private async Task ConfirmSubmitAsync()
-    {
-        _showConfirmation = false;
         _isSubmitting = true;
-        _errorMessages.Clear();
         StateHasChanged();
+
+        await Swal.ShowLoadingAsync(T("message.sending", "Enviando..."));
 
         try
         {
@@ -235,26 +197,37 @@
             {
                 var result = await OnSubmit(_model);
 
+                await Swal.CloseAsync();
+
                 if (result.Success)
                 {
-                    _successMessage = T("message.success", "El formulario se envió correctamente.");
                     _model = new CreateContactModel();
                     _fieldErrors.Clear();
                     _hasAttemptedSubmit = false;
                     await OnContactCreated.InvokeAsync();
+
+                    await Swal.SuccessAsync(
+                        T("message.success", "El formulario se envió correctamente."),
+                        result.Message);
                 }
                 else
                 {
-                    if (result.Errors?.Any() == true)
-                        _errorMessages.AddRange(result.Errors);
-                    else
-                        _errorMessages.Add(result.Message);
+                    var errorText = result.Errors?.Any() == true
+                        ? string.Join("\n", result.Errors)
+                        : result.Message;
+
+                    await Swal.ErrorAsync(
+                        T("message.error", "Ocurrió un error"),
+                        errorText);
                 }
             }
         }
-        catch (Exception)
+        catch
         {
-            _errorMessages.Add(T("error.unexpected", "Ocurrió un error inesperado."));
+            await Swal.CloseAsync();
+            await Swal.ErrorAsync(
+                T("message.error", "Ocurrió un error"),
+                T("error.unexpected", "Ocurrió un error inesperado."));
         }
         finally
         {
@@ -266,10 +239,7 @@
     private async Task Close()
     {
         _model = new CreateContactModel();
-        _errorMessages.Clear();
         _fieldErrors.Clear();
-        _successMessage = null;
-        _showConfirmation = false;
         _hasAttemptedSubmit = false;
         await OnClose.InvokeAsync();
     }

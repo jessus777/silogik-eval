@@ -11,6 +11,7 @@ namespace SilogikEval.Web.Client.Extensions
             services.AddSingleton<ILanguageStateService, LanguageStateService>();
             services.AddScoped<IApiTranslationService, ApiTranslationService>();
             services.AddScoped<IApiContactService, ApiContactService>();
+            services.AddScoped<ISweetAlertService, SweetAlertService>();
 
             return services;
         }

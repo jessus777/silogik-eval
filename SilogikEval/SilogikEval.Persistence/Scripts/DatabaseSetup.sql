@@ -230,6 +230,7 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'message.error',            N'Ocurrió un error al procesar la solicitud.'),
 ('es', 'message.confirm_send',     N'¿Está seguro de enviar el formulario?'),
 ('es', 'message.update_success',   N'El contacto se actualizó correctamente.'),
+('es', 'message.sending',          N'Enviando...'),
 
 -- Validation
 ('es', 'validation.email.required',                 N'El correo electrónico es obligatorio.'),
@@ -289,6 +290,7 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'message.error',            N'An error occurred while processing the request.'),
 ('en', 'message.confirm_send',     N'Are you sure you want to submit the form?'),
 ('en', 'message.update_success',   N'The contact was updated successfully.'),
+('en', 'message.sending',          N'Sending...'),
 
 -- Validation
 ('en', 'validation.email.required',                 N'Email is required.'),
