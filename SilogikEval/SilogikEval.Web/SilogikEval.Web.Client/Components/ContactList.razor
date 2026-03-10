@@ -30,6 +30,7 @@
                             <th>@T("label.secondlastname", "Apellido materno")</th>
                             <th>@T("label.comments", "Comentarios")</th>
                             <th>@T("label.attachment", "Adjunto")</th>
+                            <th>@T("label.actions", "Acciones")</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -52,6 +53,12 @@
                                         <span class="text-muted">—</span>
                                     }
                                 </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary"
+                                            @onclick="() => OnViewContact.InvokeAsync(contact.Id)">
+                                        👁 @T("button.view", "Ver")
+                                    </button>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -64,6 +71,7 @@
 @code {
     [Parameter] public IEnumerable<ContactModel>? Contacts { get; set; }
     [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
+    [Parameter] public EventCallback<Guid> OnViewContact { get; set; }
 
     private string T(string key, string fallback)
     {

@@ -185,11 +185,16 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'label.contacts',           N'Contactos'),
 ('es', 'label.no_records',         N'No hay registros.'),
 ('es', 'label.add_contact',        N'Agregar Contacto'),
+('es', 'label.actions',            N'Acciones'),
+('es', 'label.contact_detail',     N'Detalle del Contacto'),
+('es', 'label.created_date',       N'Fecha de creación'),
 
 -- Buttons
 ('es', 'button.submit',            N'Enviar'),
 ('es', 'button.cancel',            N'Cancelar'),
 ('es', 'button.confirm',           N'Confirmar'),
+('es', 'button.view',              N'Ver'),
+('es', 'button.close',             N'Cerrar'),
 
 -- Messages
 ('es', 'message.success',          N'El formulario se envió correctamente.'),
@@ -234,11 +239,16 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'label.contacts',           N'Contacts'),
 ('en', 'label.no_records',         N'No records found.'),
 ('en', 'label.add_contact',        N'Add Contact'),
+('en', 'label.actions',            N'Actions'),
+('en', 'label.contact_detail',     N'Contact Detail'),
+('en', 'label.created_date',       N'Created date'),
 
 -- Buttons
 ('en', 'button.submit',            N'Submit'),
 ('en', 'button.cancel',            N'Cancel'),
 ('en', 'button.confirm',           N'Confirm'),
+('en', 'button.view',              N'View'),
+('en', 'button.close',             N'Close'),
 
 -- Messages
 ('en', 'message.success',          N'The form was submitted successfully.'),

@@ -17,7 +17,13 @@
     </button>
 </div>
 
-<ContactList Contacts="_contacts" Translations="_translations" />
+<ContactList Contacts="_contacts" Translations="_translations"
+             OnViewContact="ViewContactAsync" />
+
+<ContactDetailModal IsVisible="_showDetail"
+                    Contact="_selectedContact"
+                    Translations="_translations"
+                    OnClose="CloseDetail" />
 
 <ContactFormModal IsVisible="_showModal"
                   Translations="_translations"
@@ -29,6 +35,8 @@
     private IEnumerable<ContactModel>? _contacts;
     private IDictionary<string, string> _translations = new Dictionary<string, string>();
     private bool _showModal;
+    private bool _showDetail;
+    private ContactModel? _selectedContact;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,6 +71,23 @@
     private void CloseModal()
     {
         _showModal = false;
+        StateHasChanged();
+    }
+
+    private async Task ViewContactAsync(Guid id)
+    {
+        _selectedContact = null;
+        _showDetail = true;
+        StateHasChanged();
+
+        _selectedContact = await ContactService.GetByIdAsync(id);
+        StateHasChanged();
+    }
+
+    private void CloseDetail()
+    {
+        _showDetail = false;
+        _selectedContact = null;
         StateHasChanged();
     }
 

@@ -30,6 +30,14 @@ namespace SilogikEval.Web.Client.Services
             return response?.Data ?? [];
         }
 
+        public async Task<ContactModel?> GetByIdAsync(Guid id)
+        {
+            var response = await _httpClient
+                .GetFromJsonAsync<ApiResponseModel<ContactModel>>($"api/contacts/{id}");
+
+            return response?.Data;
+        }
+
         public async Task<ApiResponseModel<Guid>> CreateAsync(CreateContactModel model)
         {
             using var content = new MultipartFormDataContent();

@@ -1,0 +1,90 @@
+@using SilogikEval.Web.Client.Models
+
+@if (IsVisible)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@T("label.contact_detail", "Detalle del Contacto")</h5>
+                    <button type="button" class="btn-close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (Contact is null)
+                    {
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.email", "Email")</label>
+                                <p class="form-control-plaintext">@Contact.Email</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.firstname", "Nombre")</label>
+                                <p class="form-control-plaintext">@Contact.FirstName</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.secondname", "Segundo nombre")</label>
+                                <p class="form-control-plaintext">@(Contact.SecondName ?? "—")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.lastname", "Apellido paterno")</label>
+                                <p class="form-control-plaintext">@Contact.LastName</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.secondlastname", "Apellido materno")</label>
+                                <p class="form-control-plaintext">@(Contact.SecondLastName ?? "—")</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.attachment", "Adjunto")</label>
+                                <p class="form-control-plaintext">
+                                    @if (!string.IsNullOrEmpty(Contact.FilePath))
+                                    {
+                                        <span class="badge bg-success">@Contact.FilePath</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">@T("label.comments", "Comentarios")</label>
+                                <p class="form-control-plaintext">@Contact.Comments</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">@T("label.created_date", "Fecha de creación")</label>
+                                <p class="form-control-plaintext">@Contact.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">
+                        @T("button.close", "Cerrar")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public ContactModel? Contact { get; set; }
+    [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task Close() => await OnClose.InvokeAsync();
+
+    private string T(string key, string fallback)
+    {
+        return Translations.TryGetValue(key, out var value) ? value : fallback;
+    }
+}
