@@ -11,5 +11,7 @@
   </Folder>
   <Folder Name="/src/UI/">
     <Project Path="SilogikEval.Api/SilogikEval.Api.csproj" />
+    <Project Path="SilogikEval.Web/SilogikEval.Web.Client/SilogikEval.Web.Client.csproj" Id="b1d2378a-dbb7-400c-9ef9-9c85e4f4f189" />
+    <Project Path="SilogikEval.Web/SilogikEval.Web/SilogikEval.Web.csproj" Id="f20b94f1-cbc5-465a-8a19-d34a2db5a480" />
   </Folder>
 </Solution>

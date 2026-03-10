@@ -1,0 +1,78 @@
+@page "/contact"
+@rendermode InteractiveWebAssembly
+@using SilogikEval.Web.Client.Components
+@using SilogikEval.Web.Client.Models
+@using SilogikEval.Web.Client.Services
+@inject IApiContactService ContactService
+@inject IApiTranslationService TranslationService
+@inject ILanguageStateService LanguageState
+@implements IDisposable
+
+<PageTitle>@T("label.contacts", "Contactos")</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>@T("label.contacts", "Contactos")</h3>
+    <button class="btn btn-primary" @onclick="OpenModal">
+        + @T("label.add_contact", "Agregar Contacto")
+    </button>
+</div>
+
+<ContactList Contacts="_contacts" Translations="_translations" />
+
+<ContactFormModal IsVisible="_showModal"
+                  Translations="_translations"
+                  OnClose="CloseModal"
+                  OnContactCreated="LoadContactsAsync"
+                  OnSubmit="ContactService.CreateAsync" />
+
+@code {
+    private IEnumerable<ContactModel>? _contacts;
+    private IDictionary<string, string> _translations = new Dictionary<string, string>();
+    private bool _showModal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        LanguageState.OnLanguageChanged += OnLanguageChanged;
+        await LoadTranslationsAsync();
+        await LoadContactsAsync();
+    }
+
+    private async Task LoadTranslationsAsync()
+    {
+        _translations = await TranslationService.GetTranslationsAsync(LanguageState.CurrentLanguage);
+    }
+
+    private async Task LoadContactsAsync()
+    {
+        _contacts = await ContactService.GetAllAsync();
+        StateHasChanged();
+    }
+
+    private async void OnLanguageChanged()
+    {
+        await LoadTranslationsAsync();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void OpenModal()
+    {
+        _showModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+    {
+        _showModal = false;
+        StateHasChanged();
+    }
+
+    private string T(string key, string fallback)
+    {
+        return _translations.TryGetValue(key, out var value) ? value : fallback;
+    }
+
+    public void Dispose()
+    {
+        LanguageState.OnLanguageChanged -= OnLanguageChanged;
+    }
+}

@@ -182,14 +182,19 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'label.secondlastname',     N'Apellido materno'),
 ('es', 'label.comments',           N'Comentarios'),
 ('es', 'label.attachment',         N'Adjunto'),
+('es', 'label.contacts',           N'Contactos'),
+('es', 'label.no_records',         N'No hay registros.'),
+('es', 'label.add_contact',        N'Agregar Contacto'),
 
 -- Buttons
 ('es', 'button.submit',            N'Enviar'),
 ('es', 'button.cancel',            N'Cancelar'),
+('es', 'button.confirm',           N'Confirmar'),
 
 -- Messages
 ('es', 'message.success',          N'El formulario se envió correctamente.'),
 ('es', 'message.error',            N'Ocurrió un error al procesar la solicitud.'),
+('es', 'message.confirm_send',     N'¿Está seguro de enviar el formulario?'),
 
 -- Validation
 ('es', 'validation.email.required',                 N'El correo electrónico es obligatorio.'),
@@ -226,14 +231,19 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'label.secondlastname',     N'Second last name'),
 ('en', 'label.comments',           N'Comments'),
 ('en', 'label.attachment',         N'Attachment'),
+('en', 'label.contacts',           N'Contacts'),
+('en', 'label.no_records',         N'No records found.'),
+('en', 'label.add_contact',        N'Add Contact'),
 
 -- Buttons
 ('en', 'button.submit',            N'Submit'),
 ('en', 'button.cancel',            N'Cancel'),
+('en', 'button.confirm',           N'Confirm'),
 
 -- Messages
 ('en', 'message.success',          N'The form was submitted successfully.'),
 ('en', 'message.error',            N'An error occurred while processing the request.'),
+('en', 'message.confirm_send',     N'Are you sure you want to submit the form?'),
 
 -- Validation
 ('en', 'validation.email.required',                 N'Email is required.'),

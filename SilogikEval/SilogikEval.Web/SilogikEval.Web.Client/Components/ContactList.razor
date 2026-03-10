@@ -1,0 +1,72 @@
+@using SilogikEval.Web.Client.Models
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">@T("label.contacts", "Contactos")</h5>
+    </div>
+    <div class="card-body">
+        @if (Contacts is null)
+        {
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        }
+        else if (!Contacts.Any())
+        {
+            <p class="text-muted text-center mb-0">@T("label.no_records", "No hay registros.")</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>@T("label.email", "Email")</th>
+                            <th>@T("label.firstname", "Nombre")</th>
+                            <th>@T("label.secondname", "Segundo nombre")</th>
+                            <th>@T("label.lastname", "Apellido paterno")</th>
+                            <th>@T("label.secondlastname", "Apellido materno")</th>
+                            <th>@T("label.comments", "Comentarios")</th>
+                            <th>@T("label.attachment", "Adjunto")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var contact in Contacts)
+                        {
+                            <tr>
+                                <td>@contact.Email</td>
+                                <td>@contact.FirstName</td>
+                                <td>@(contact.SecondName ?? "—")</td>
+                                <td>@contact.LastName</td>
+                                <td>@(contact.SecondLastName ?? "—")</td>
+                                <td>@contact.Comments</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(contact.FilePath))
+                                    {
+                                        <span class="badge bg-success">✓</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public IEnumerable<ContactModel>? Contacts { get; set; }
+    [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
+
+    private string T(string key, string fallback)
+    {
+        return Translations.TryGetValue(key, out var value) ? value : fallback;
+    }
+}

@@ -1,0 +1,54 @@
+@using SilogikEval.Web.Client.Models
+@using SilogikEval.Web.Client.Services
+@inject IApiTranslationService TranslationService
+@inject ILanguageStateService LanguageState
+@implements IDisposable
+
+<div class="position-relative">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+            @onclick="ToggleDropdown">
+        🌐 @_currentName
+    </button>
+    @if (_isOpen)
+    {
+        <div class="dropdown-menu dropdown-menu-end show" style="position:absolute; right:0; top:100%;">
+            @foreach (var lang in _languages)
+            {
+                <button class="dropdown-item @(lang.Code == LanguageState.CurrentLanguage ? "active" : "")"
+                        type="button"
+                        @onclick="() => SelectLanguage(lang.Code)">
+                    @lang.Name
+                </button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private IEnumerable<LanguageModel> _languages = [];
+    private string _currentName = "Español";
+    private bool _isOpen;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _languages = await TranslationService.GetLanguagesAsync();
+        UpdateCurrentName();
+    }
+
+    private void ToggleDropdown() => _isOpen = !_isOpen;
+
+    private void SelectLanguage(string code)
+    {
+        LanguageState.SetLanguage(code);
+        UpdateCurrentName();
+        _isOpen = false;
+    }
+
+    private void UpdateCurrentName()
+    {
+        _currentName = _languages
+            .FirstOrDefault(l => l.Code == LanguageState.CurrentLanguage)?.Name ?? "Español";
+    }
+
+    public void Dispose() { }
+}
