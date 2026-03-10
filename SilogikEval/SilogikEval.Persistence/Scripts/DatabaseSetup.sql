@@ -107,14 +107,36 @@ END
 GO
 
 CREATE OR ALTER PROCEDURE usp_Contact_GetAll
+    @PageNumber     INT             = 1,
+    @PageSize       INT             = 10,
+    @Search         NVARCHAR(256)   = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- Total count for pagination metadata
+    SELECT COUNT(1)
+    FROM   Contacts
+    WHERE  @Search IS NULL
+           OR Email       LIKE '%' + @Search + '%'
+           OR FirstName   LIKE '%' + @Search + '%'
+           OR SecondName  LIKE '%' + @Search + '%'
+           OR LastName    LIKE '%' + @Search + '%'
+           OR SecondLastName LIKE '%' + @Search + '%';
+
+    -- Paged results
     SELECT  Id, Email, FirstName, SecondName, LastName, SecondLastName,
             Comments, FilePath, CreatedDate, LastModifiedDate
     FROM    Contacts
-    ORDER BY CreatedDate DESC;
+    WHERE   @Search IS NULL
+            OR Email       LIKE '%' + @Search + '%'
+            OR FirstName   LIKE '%' + @Search + '%'
+            OR SecondName  LIKE '%' + @Search + '%'
+            OR LastName    LIKE '%' + @Search + '%'
+            OR SecondLastName LIKE '%' + @Search + '%'
+    ORDER BY CreatedDate DESC
+    OFFSET (@PageNumber - 1) * @PageSize ROWS
+    FETCH NEXT @PageSize ROWS ONLY;
 END
 GO
 
@@ -214,6 +236,10 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'label.contact_detail',     N'Detalle del Contacto'),
 ('es', 'label.edit_contact',       N'Editar Contacto'),
 ('es', 'label.created_date',       N'Fecha de creación'),
+('es', 'label.search',             N'Buscar por email o nombre...'),
+('es', 'label.page',               N'Página'),
+('es', 'label.of',                 N'de'),
+('es', 'label.total_records',      N'registros'),
 
 -- Buttons
 ('es', 'button.submit',            N'Enviar'),
@@ -274,6 +300,10 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'label.contact_detail',     N'Contact Detail'),
 ('en', 'label.edit_contact',       N'Edit Contact'),
 ('en', 'label.created_date',       N'Created date'),
+('en', 'label.search',             N'Search by email or name...'),
+('en', 'label.page',               N'Page'),
+('en', 'label.of',                 N'of'),
+('en', 'label.total_records',      N'records'),
 
 -- Buttons
 ('en', 'button.submit',            N'Submit'),

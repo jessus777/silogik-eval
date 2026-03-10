@@ -21,7 +21,7 @@ namespace SilogikEval.Api.Endpoints
                 .Produces<ApiResponse<object>>(StatusCodes.Status409Conflict);
 
             group.MapGet("/", GetAllAsync)
-                .Produces<ApiResponse<IEnumerable<ContactResponseDto>>>();
+                .Produces<ApiResponse<PagedResult<ContactResponseDto>>>();
 
             group.MapGet("/{id:guid}", GetByIdAsync)
                 .Produces<ApiResponse<ContactResponseDto>>()
@@ -67,11 +67,18 @@ namespace SilogikEval.Api.Endpoints
         }
 
         private static async Task<IResult> GetAllAsync(
+            [FromQuery] int? page,
+            [FromQuery] int? pageSize,
+            [FromQuery] string? search,
             IContactServiceAsync contactService)
         {
-            var contacts = await contactService.GetAllAsync();
+            var currentPage = page is > 0 ? page.Value : 1;
+            var currentPageSize = pageSize is > 0 and <= 50 ? pageSize.Value : 10;
+            var searchTerm = string.IsNullOrWhiteSpace(search) ? null : search.Trim();
 
-            return Results.Ok(ApiResponse<IEnumerable<ContactResponseDto>>.Ok(contacts));
+            var result = await contactService.GetAllAsync(currentPage, currentPageSize, searchTerm);
+
+            return Results.Ok(ApiResponse<PagedResult<ContactResponseDto>>.Ok(result));
         }
 
         private static async Task<IResult> GetByIdAsync(

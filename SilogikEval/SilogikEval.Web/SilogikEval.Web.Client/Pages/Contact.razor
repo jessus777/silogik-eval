@@ -17,9 +17,11 @@
     </button>
 </div>
 
-<ContactList Contacts="_contacts" Translations="_translations"
+<ContactList PagedResult="_pagedResult" Translations="_translations"
              OnViewContact="ViewContactAsync"
-             OnEditContact="EditContactAsync" />
+             OnEditContact="EditContactAsync"
+             OnPageChanged="OnPageChangedAsync"
+             OnSearchChanged="OnSearchChangedAsync" />
 
 <ContactDetailModal IsVisible="_showDetail"
                     Contact="_selectedContact"
@@ -40,13 +42,17 @@
                   OnSubmit="ContactService.CreateAsync" />
 
 @code {
-    private IEnumerable<ContactModel>? _contacts;
+    private PagedResultModel<ContactModel>? _pagedResult;
     private IDictionary<string, string> _translations = new Dictionary<string, string>();
     private bool _showModal;
     private bool _showDetail;
     private bool _showEdit;
     private ContactModel? _selectedContact;
     private ContactModel? _editContact;
+
+    private int _currentPage = 1;
+    private const int PageSize = 10;
+    private string? _currentSearch;
 
     protected override async Task OnInitializedAsync()
     {
@@ -62,8 +68,21 @@
 
     private async Task LoadContactsAsync()
     {
-        _contacts = await ContactService.GetAllAsync();
+        _pagedResult = await ContactService.GetAllAsync(_currentPage, PageSize, _currentSearch);
         StateHasChanged();
+    }
+
+    private async Task OnPageChangedAsync(int page)
+    {
+        _currentPage = page;
+        await LoadContactsAsync();
+    }
+
+    private async Task OnSearchChangedAsync(string? search)
+    {
+        _currentSearch = search;
+        _currentPage = 1;
+        await LoadContactsAsync();
     }
 
     private async void OnLanguageChanged()

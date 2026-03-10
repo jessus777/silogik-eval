@@ -1,4 +1,5 @@
 using SilogikEval.Application.Entities;
+using SilogikEval.Application.Responses;
 
 namespace SilogikEval.Application.Interfaces
 {
@@ -10,7 +11,7 @@ namespace SilogikEval.Application.Interfaces
 
         Task<Contact?> GetByIdAsync(Guid id);
 
-        Task<IEnumerable<Contact>> GetAllAsync();
+        Task<PagedResult<Contact>> GetAllAsync(int pageNumber, int pageSize, string? search = null);
 
         Task<bool> EmailExistsAsync(string email);
     }

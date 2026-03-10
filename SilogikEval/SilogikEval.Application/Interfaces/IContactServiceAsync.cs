@@ -1,4 +1,5 @@
 ﻿using SilogikEval.Application.Dtos;
+using SilogikEval.Application.Responses;
 
 namespace SilogikEval.Application.Interfaces
 {
@@ -10,6 +11,6 @@ namespace SilogikEval.Application.Interfaces
 
         Task<ContactResponseDto?> GetByIdAsync(Guid id);
 
-        Task<IEnumerable<ContactResponseDto>> GetAllAsync();
+        Task<PagedResult<ContactResponseDto>> GetAllAsync(int pageNumber, int pageSize, string? search = null);
     }
 }

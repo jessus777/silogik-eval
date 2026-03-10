@@ -22,18 +22,51 @@ namespace SilogikEval.Web.Client.Services
             _languageState = languageState;
         }
 
-        public async Task<IEnumerable<ContactModel>> GetAllAsync()
+        public async Task<PagedResultModel<ContactModel>> GetAllAsync(int page = 1, int pageSize = 10, string? search = null)
         {
-            var response = await _httpClient
-                .GetFromJsonAsync<ApiResponseModel<IEnumerable<ContactModel>>>("api/contacts");
+            var url = $"api/contacts?page={page}&pageSize={pageSize}";
 
-            return response?.Data ?? [];
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+
+            HttpResponseMessage httpResponse;
+
+            try
+            {
+                httpResponse = await _httpClient.GetAsync(url);
+            }
+            catch
+            {
+                return new PagedResultModel<ContactModel>();
+            }
+
+            if (!httpResponse.IsSuccessStatusCode)
+                return new PagedResultModel<ContactModel>();
+
+            var json = await httpResponse.Content.ReadAsStringAsync();
+            var response = JsonSerializer.Deserialize<ApiResponseModel<PagedResultModel<ContactModel>>>(json, JsonOptions);
+
+            return response?.Data ?? new PagedResultModel<ContactModel>();
         }
 
         public async Task<ContactModel?> GetByIdAsync(Guid id)
         {
-            var response = await _httpClient
-                .GetFromJsonAsync<ApiResponseModel<ContactModel>>($"api/contacts/{id}");
+            HttpResponseMessage httpResponse;
+
+            try
+            {
+                httpResponse = await _httpClient.GetAsync($"api/contacts/{id}");
+            }
+            catch
+            {
+                return null;
+            }
+
+            if (!httpResponse.IsSuccessStatusCode)
+                return null;
+
+            var json = await httpResponse.Content.ReadAsStringAsync();
+            var response = JsonSerializer.Deserialize<ApiResponseModel<ContactModel>>(json, JsonOptions);
 
             return response?.Data;
         }

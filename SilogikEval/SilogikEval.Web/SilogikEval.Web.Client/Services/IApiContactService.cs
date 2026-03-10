@@ -4,7 +4,7 @@ namespace SilogikEval.Web.Client.Services
 {
     public interface IApiContactService
     {
-        Task<IEnumerable<ContactModel>> GetAllAsync();
+        Task<PagedResultModel<ContactModel>> GetAllAsync(int page = 1, int pageSize = 10, string? search = null);
 
         Task<ContactModel?> GetByIdAsync(Guid id);
 

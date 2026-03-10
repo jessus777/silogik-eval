@@ -2,6 +2,7 @@ using System.Data;
 using Dapper;
 using SilogikEval.Application.Entities;
 using SilogikEval.Application.Interfaces;
+using SilogikEval.Application.Responses;
 using SilogikEval.Persistence.Context;
 
 namespace SilogikEval.Persistence.Repositories
@@ -70,13 +71,24 @@ namespace SilogikEval.Persistence.Repositories
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<Contact>> GetAllAsync()
+        public async Task<PagedResult<Contact>> GetAllAsync(int pageNumber, int pageSize, string? search = null)
         {
             using var connection = _connectionFactory.CreateConnection();
 
-            return await connection.QueryAsync<Contact>(
+            using var multi = await connection.QueryMultipleAsync(
                 "usp_Contact_GetAll",
+                new
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    Search = search
+                },
                 commandType: CommandType.StoredProcedure);
+
+            var totalCount = await multi.ReadSingleAsync<int>();
+            var contacts = await multi.ReadAsync<Contact>();
+
+            return PagedResult<Contact>.Create(contacts, pageNumber, pageSize, totalCount);
         }
 
         public async Task<bool> EmailExistsAsync(string email)

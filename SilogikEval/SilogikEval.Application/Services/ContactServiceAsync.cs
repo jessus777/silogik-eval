@@ -4,6 +4,7 @@ using SilogikEval.Application.Dtos;
 using SilogikEval.Application.Entities;
 using SilogikEval.Application.Exceptions;
 using SilogikEval.Application.Interfaces;
+using SilogikEval.Application.Responses;
 
 namespace SilogikEval.Application.Services
 {
@@ -127,11 +128,13 @@ namespace SilogikEval.Application.Services
             return MapToDto(contact);
         }
 
-        public async Task<IEnumerable<ContactResponseDto>> GetAllAsync()
+        public async Task<PagedResult<ContactResponseDto>> GetAllAsync(int pageNumber, int pageSize, string? search = null)
         {
-            var contacts = await _contactRepository.GetAllAsync();
+            var pagedContacts = await _contactRepository.GetAllAsync(pageNumber, pageSize, search);
 
-            return contacts.Select(MapToDto);
+            var items = pagedContacts.Items.Select(MapToDto);
+
+            return PagedResult<ContactResponseDto>.Create(items, pagedContacts.PageNumber, pagedContacts.PageSize, pagedContacts.TotalCount);
         }
 
         private static ContactResponseDto MapToDto(Contact contact)

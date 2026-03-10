@@ -5,7 +5,26 @@
         <h5 class="mb-0">@T("label.contacts", "Contactos")</h5>
     </div>
     <div class="card-body">
-        @if (Contacts is null)
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="@T("label.search", "Buscar por email o nombre...")"
+                           @bind="_searchText" @bind:event="oninput" @onkeydown="HandleSearchKeyDown" />
+                    <button class="btn btn-outline-primary" type="button" @onclick="ExecuteSearch">
+                        <span class="bi bi-search"></span>
+                    </button>
+                    @if (!string.IsNullOrWhiteSpace(_searchText))
+                    {
+                        <button class="btn btn-outline-secondary" type="button" @onclick="ClearSearch">
+                            <span class="bi bi-x-lg"></span>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @if (PagedResult is null)
         {
             <div class="text-center py-4">
                 <div class="spinner-border text-primary" role="status">
@@ -13,13 +32,13 @@
                 </div>
             </div>
         }
-        else if (!Contacts.Any())
+        else if (!PagedResult.Items.Any())
         {
             <p class="text-muted text-center mb-0">@T("label.no_records", "No hay registros.")</p>
         }
         else
         {
-            <div class="table-responsive">
+            <div class="table-responsive" style="overflow:visible;">
                 <table class="table table-striped table-hover mb-0">
                     <thead>
                         <tr>
@@ -34,7 +53,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var contact in Contacts)
+                        @foreach (var contact in PagedResult.Items)
                         {
                             <tr>
                                 <td>@contact.Email</td>
@@ -83,17 +102,65 @@
                     </tbody>
                 </table>
             </div>
+
+            @if (PagedResult.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">
+                        @T("label.page", "Página") @PagedResult.PageNumber @T("label.of", "de") @PagedResult.TotalPages
+                        — @PagedResult.TotalCount @T("label.total_records", "registros")
+                    </small>
+
+                    <nav aria-label="Pagination">
+                        <ul class="pagination mb-0">
+                            <li class="page-item @(PagedResult.HasPreviousPage ? "" : "disabled")">
+                                <button class="page-link" @onclick="() => GoToPage(PagedResult.FirstPage)" disabled="@(!PagedResult.HasPreviousPage)">
+                                    <span class="bi bi-chevron-double-left"></span>
+                                </button>
+                            </li>
+
+                            <li class="page-item @(PagedResult.HasPreviousPage ? "" : "disabled")">
+                                <button class="page-link" @onclick="() => GoToPage(PagedResult.PageNumber - 1)" disabled="@(!PagedResult.HasPreviousPage)">
+                                    <span class="bi bi-chevron-left"></span>
+                                </button>
+                            </li>
+
+                            @foreach (var pageNum in GetVisiblePages())
+                            {
+                                <li class="page-item @(pageNum == PagedResult.PageNumber ? "active" : "")">
+                                    <button class="page-link" @onclick="() => GoToPage(pageNum)">@pageNum</button>
+                                </li>
+                            }
+
+                            <li class="page-item @(PagedResult.HasNextPage ? "" : "disabled")">
+                                <button class="page-link" @onclick="() => GoToPage(PagedResult.PageNumber + 1)" disabled="@(!PagedResult.HasNextPage)">
+                                    <span class="bi bi-chevron-right"></span>
+                                </button>
+                            </li>
+
+                            <li class="page-item @(PagedResult.HasNextPage ? "" : "disabled")">
+                                <button class="page-link" @onclick="() => GoToPage(PagedResult.LastPage)" disabled="@(!PagedResult.HasNextPage)">
+                                    <span class="bi bi-chevron-double-right"></span>
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
         }
     </div>
 </div>
 
 @code {
-    [Parameter] public IEnumerable<ContactModel>? Contacts { get; set; }
+    [Parameter] public PagedResultModel<ContactModel>? PagedResult { get; set; }
     [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
     [Parameter] public EventCallback<Guid> OnViewContact { get; set; }
     [Parameter] public EventCallback<Guid> OnEditContact { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    [Parameter] public EventCallback<string?> OnSearchChanged { get; set; }
 
     private Guid? _openMenuId;
+    private string? _searchText;
 
     private void ToggleMenu(Guid id)
     {
@@ -110,6 +177,49 @@
     {
         _openMenuId = null;
         await OnEditContact.InvokeAsync(id);
+    }
+
+    private async Task GoToPage(int page)
+    {
+        await OnPageChanged.InvokeAsync(page);
+    }
+
+    private async Task ExecuteSearch()
+    {
+        await OnSearchChanged.InvokeAsync(string.IsNullOrWhiteSpace(_searchText) ? null : _searchText.Trim());
+    }
+
+    private async Task ClearSearch()
+    {
+        _searchText = null;
+        await OnSearchChanged.InvokeAsync(null);
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ExecuteSearch();
+        }
+    }
+
+    private IEnumerable<int> GetVisiblePages()
+    {
+        if (PagedResult is null || PagedResult.TotalPages <= 0)
+            yield break;
+
+        const int maxVisible = 5;
+        var totalPages = PagedResult.TotalPages;
+        var current = PagedResult.PageNumber;
+
+        var start = Math.Max(1, current - maxVisible / 2);
+        var end = Math.Min(totalPages, start + maxVisible - 1);
+
+        if (end - start + 1 < maxVisible)
+            start = Math.Max(1, end - maxVisible + 1);
+
+        for (var i = start; i <= end; i++)
+            yield return i;
     }
 
     private string T(string key, string fallback)
