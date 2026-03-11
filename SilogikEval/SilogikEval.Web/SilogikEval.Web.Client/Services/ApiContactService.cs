@@ -182,5 +182,31 @@ namespace SilogikEval.Web.Client.Services
 
             return new ApiResponseModel<object> { Success = false, Message = "Error inesperado." };
         }
+
+        public async Task<ApiResponseModel<object>> DeleteAsync(Guid id)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Delete, $"api/contacts/{id}");
+            request.Headers.AcceptLanguage.Add(new StringWithQualityHeaderValue(_languageState.CurrentLanguage));
+
+            HttpResponseMessage httpResponse;
+
+            try
+            {
+                httpResponse = await _httpClient.SendAsync(request);
+            }
+            catch
+            {
+                return new ApiResponseModel<object> { Success = false, Message = "Error de conexión." };
+            }
+
+            var json = await httpResponse.Content.ReadAsStringAsync();
+
+            var result = JsonSerializer.Deserialize<ApiResponseModel<object>>(json, JsonOptions);
+
+            if (result is not null)
+                return result;
+
+            return new ApiResponseModel<object> { Success = false, Message = "Error inesperado." };
+        }
     }
 }

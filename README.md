@@ -134,6 +134,7 @@ SilogikEval/
 | `GET` | `/api/contacts?page=1&pageSize=10&search=` | Listar contactos (paginado) |
 | `GET` | `/api/contacts/{id}` | Obtener un contacto por ID |
 | `PUT` | `/api/contacts/{id}` | Actualizar un contacto |
+| `DELETE` | `/api/contacts/{id}` | Eliminar un contacto |
 
 ### Traducciones
 

@@ -118,6 +118,17 @@ namespace SilogikEval.Application.Services
             await _contactRepository.UpdateAsync(existing);
         }
 
+        public async Task DeleteAsync(Guid id)
+        {
+            var existing = await _contactRepository.GetByIdAsync(id)
+                ?? throw new NotFoundException(nameof(Contact), id);
+
+            if (!string.IsNullOrEmpty(existing.FilePath))
+                await _fileStorageService.DeleteAsync(existing.FilePath);
+
+            await _contactRepository.DeleteAsync(id);
+        }
+
         public async Task<ContactResponseDto?> GetByIdAsync(Guid id)
         {
             var contact = await _contactRepository.GetByIdAsync(id);

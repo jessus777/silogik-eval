@@ -34,6 +34,10 @@ namespace SilogikEval.Api.Endpoints
                 .Produces<ApiResponse<object>>(StatusCodes.Status400BadRequest)
                 .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
 
+            group.MapDelete("/{id:guid}", DeleteAsync)
+                .Produces<ApiResponse<object>>(StatusCodes.Status200OK)
+                .Produces<ApiResponse<object>>(StatusCodes.Status404NotFound);
+
             return group;
         }
 
@@ -119,6 +123,15 @@ namespace SilogikEval.Api.Endpoints
             await contactService.UpdateAsync(dto);
 
             return Results.Ok(ApiResponse<object>.Ok(null!, "Contacto actualizado exitosamente."));
+        }
+
+        private static async Task<IResult> DeleteAsync(
+            Guid id,
+            IContactServiceAsync contactService)
+        {
+            await contactService.DeleteAsync(id);
+
+            return Results.Ok(ApiResponse<object>.Ok(null!, "Contacto eliminado exitosamente."));
         }
     }
 }

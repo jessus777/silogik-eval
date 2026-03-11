@@ -11,6 +11,8 @@ namespace SilogikEval.Application.Interfaces
 
         Task<ContactResponseDto?> GetByIdAsync(Guid id);
 
+        Task DeleteAsync(Guid id);
+
         Task<PagedResult<ContactResponseDto>> GetAllAsync(int pageNumber, int pageSize, string? search = null);
     }
 }

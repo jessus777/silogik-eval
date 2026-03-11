@@ -152,6 +152,17 @@ BEGIN
 END
 GO
 
+CREATE OR ALTER PROCEDURE usp_Contact_Delete
+    @Id UNIQUEIDENTIFIER
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM Contacts
+    WHERE  Id = @Id;
+END
+GO
+
 CREATE OR ALTER PROCEDURE usp_Contact_Update
     @Id                 UNIQUEIDENTIFIER,
     @FirstName          NVARCHAR(100),
@@ -256,6 +267,8 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('es', 'message.error',            N'Ocurrió un error al procesar la solicitud.'),
 ('es', 'message.confirm_send',     N'¿Está seguro de enviar el formulario?'),
 ('es', 'message.update_success',   N'El contacto se actualizó correctamente.'),
+('es', 'message.delete_success',   N'El contacto se eliminó correctamente.'),
+('es', 'message.confirm_delete',    N'¿Está seguro de eliminar este contacto?'),
 ('es', 'message.sending',          N'Enviando...'),
 
 -- Validation
@@ -320,6 +333,8 @@ INSERT INTO Translations (LanguageCode, [Key], Value) VALUES
 ('en', 'message.error',            N'An error occurred while processing the request.'),
 ('en', 'message.confirm_send',     N'Are you sure you want to submit the form?'),
 ('en', 'message.update_success',   N'The contact was updated successfully.'),
+('en', 'message.delete_success',   N'The contact was deleted successfully.'),
+('en', 'message.confirm_delete',    N'Are you sure you want to delete this contact?'),
 ('en', 'message.sending',          N'Sending...'),
 
 -- Validation

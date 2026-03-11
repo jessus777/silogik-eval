@@ -13,6 +13,8 @@ namespace SilogikEval.Application.Interfaces
 
         Task<PagedResult<Contact>> GetAllAsync(int pageNumber, int pageSize, string? search = null);
 
+        Task DeleteAsync(Guid id);
+
         Task<bool> EmailExistsAsync(string email);
     }
 }

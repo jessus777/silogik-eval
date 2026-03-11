@@ -90,7 +90,8 @@
                                                     <span class="bi bi-pencil"></span> @T("button.edit", "Editar")
                                                 </button>
                                                 <div class="dropdown-divider"></div>
-                                                <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button" disabled>
+                                                <button class="dropdown-item d-flex align-items-center gap-2 text-danger" type="button"
+                                                        @onclick="() => OnDelete(contact.Id)">
                                                     <span class="bi bi-trash"></span> @T("button.delete", "Eliminar")
                                                 </button>
                                             </div>
@@ -156,6 +157,7 @@
     [Parameter] public IDictionary<string, string> Translations { get; set; } = new Dictionary<string, string>();
     [Parameter] public EventCallback<Guid> OnViewContact { get; set; }
     [Parameter] public EventCallback<Guid> OnEditContact { get; set; }
+    [Parameter] public EventCallback<Guid> OnDeleteContact { get; set; }
     [Parameter] public EventCallback<int> OnPageChanged { get; set; }
     [Parameter] public EventCallback<string?> OnSearchChanged { get; set; }
 
@@ -177,6 +179,12 @@
     {
         _openMenuId = null;
         await OnEditContact.InvokeAsync(id);
+    }
+
+    private async Task OnDelete(Guid id)
+    {
+        _openMenuId = null;
+        await OnDeleteContact.InvokeAsync(id);
     }
 
     private async Task GoToPage(int page)

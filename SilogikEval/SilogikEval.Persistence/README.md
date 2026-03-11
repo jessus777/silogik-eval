@@ -46,8 +46,16 @@ Implementan las interfaces de `IContactRepositoryAsync` e `ITranslationRepositor
 `DatabaseSetup.sql` contiene todo lo necesario para crear la base de datos desde cero:
 
 - Tablas: `Contacts`, `Languages`, `Translations`
-- Stored Procedures: `usp_Contact_Insert`, `usp_Contact_GetAll` (con paginación), `usp_Contact_GetById`, `usp_Contact_Update`, `usp_Contact_EmailExists`, `usp_Translation_GetByLanguage`, `usp_Language_GetActive`
+- Stored Procedures: `usp_Contact_Insert`, `usp_Contact_GetAll` (con paginación), `usp_Contact_GetById`, `usp_Contact_Update`, `usp_Contact_Delete`, `usp_Contact_EmailExists`, `usp_Translation_GetByLanguage`, `usp_Language_GetActive`
 - Seed data: 2 idiomas (es, en) y traducciones para labels, botones, mensajes, validaciones y errores
+
+### Flujo de idiomas y traducciones
+
+El sistema de internacionalización funciona completamente desde la base de datos:
+
+1. **Idiomas disponibles** — `usp_Language_GetActive` devuelve los idiomas activos de la tabla `Languages`. El frontend los usa para renderizar el selector de idioma.
+2. **Traducciones por idioma** — `usp_Translation_GetByLanguage` recibe un código de idioma (`es`, `en`) y devuelve todos los pares clave-valor de la tabla `Translations`. El frontend los almacena como un diccionario y los usa para renderizar labels, botones, mensajes y validaciones.
+3. **Agregar un idioma nuevo** solo requiere insertar un registro en `Languages` y sus traducciones en `Translations`. No se necesita recompilar ni modificar código.
 
 ## Dependencias
 

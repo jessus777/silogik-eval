@@ -6,6 +6,7 @@
 @inject IApiContactService ContactService
 @inject IApiTranslationService TranslationService
 @inject ILanguageStateService LanguageState
+@inject ISweetAlertService Swal
 @implements IDisposable
 
 <PageTitle>@T("label.contacts", "Contactos")</PageTitle>
@@ -20,6 +21,7 @@
 <ContactList PagedResult="_pagedResult" Translations="_translations"
              OnViewContact="ViewContactAsync"
              OnEditContact="EditContactAsync"
+             OnDeleteContact="DeleteContactAsync"
              OnPageChanged="OnPageChangedAsync"
              OnSearchChanged="OnSearchChangedAsync" />
 
@@ -140,6 +142,30 @@
     private async Task OnContactUpdatedAsync()
     {
         await LoadContactsAsync();
+    }
+
+    private async Task DeleteContactAsync(Guid id)
+    {
+        var confirmed = await Swal.ConfirmAsync(
+            T("message.confirm_delete", "¿Está seguro de eliminar este contacto?"),
+            "",
+            T("button.confirm", "Confirmar"),
+            T("button.cancel", "Cancelar"));
+
+        if (!confirmed)
+            return;
+
+        var result = await ContactService.DeleteAsync(id);
+
+        if (result.Success)
+        {
+            await Swal.SuccessAsync(T("message.delete_success", "El contacto se eliminó correctamente."));
+            await LoadContactsAsync();
+        }
+        else
+        {
+            await Swal.ErrorAsync(result.Message);
+        }
     }
 
     private string T(string key, string fallback)

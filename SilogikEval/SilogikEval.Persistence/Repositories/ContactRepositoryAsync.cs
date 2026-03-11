@@ -91,6 +91,16 @@ namespace SilogikEval.Persistence.Repositories
             return PagedResult<Contact>.Create(contacts, pageNumber, pageSize, totalCount);
         }
 
+        public async Task DeleteAsync(Guid id)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+
+            await connection.ExecuteAsync(
+                "usp_Contact_Delete",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
+        }
+
         public async Task<bool> EmailExistsAsync(string email)
         {
             using var connection = _connectionFactory.CreateConnection();
